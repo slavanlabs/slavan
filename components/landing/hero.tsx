@@ -1,7 +1,9 @@
 import { ArrowRight } from "lucide-react";
 import { Button } from "../ui/button";
 
+//TODO: Should complete the landing page
 export const Hero = () => {
+
   return (
     <div className="max-w-6xl mx-auto  flex flex-col justify-center items-center space-y-6 min-h-screen">
       <h1 className="font-medium text-6xl text-center max-w-xl mx-auto tracking-tight leading-16">
