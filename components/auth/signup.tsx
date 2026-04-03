@@ -1,13 +1,24 @@
 "use client";
 
+import * as z from "zod";
+import { toast } from "sonner";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { EyeClosed } from "lucide-react";
+import { Eye, EyeClosed } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
+import { AuthNavBar } from "./auth-navbar";
+import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import { Logo } from "@/components/landing/nav-bar";
-import { AuthNavBar } from "./auth-navbar";
+import { authClient } from "@/lib/better-auth-client";
+
+const signUpSchema = z.object({
+  email: z.email(),
+  password: z.string().min(8, "The password should be min 8 characters"),
+  agencyName: z.string(),
+});
 
 export const SignUp = () => {
   return (
@@ -20,6 +31,44 @@ export const SignUp = () => {
 };
 
 const SignUpCard = () => {
+  const router = useRouter();
+
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+  const [agencyName, setAgencyName] = useState<string>("");
+  const [showPassword, setShowPassword] = useState<boolean>(true);
+
+  const handleSignUp = async () => {
+    try {
+      const { success } = signUpSchema.safeParse({
+        email: email.trim(),
+        password: password.trim(),
+        agencyName: agencyName.trim(),
+      });
+
+      if (!success) {
+        toast.error("Please provide valid details");
+        return;
+      }
+
+      setLoading(true);
+
+      const { data, error } = await authClient.signUp.email({
+        name: agencyName.trim(),
+        email: email.trim(),
+        password: password.trim(),
+        callbackURL: "/dashboard",
+      });
+
+
+    } catch (error) {
+      const message = error instanceof Error ? error.message : `Something went wrong`
+      toast.error(message)
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <>
       <AuthNavBar />
@@ -44,36 +93,51 @@ const SignUpCard = () => {
 
           <div className="space-y-2">
             <Input
+              required
               type="text"
               placeholder="Agency Name"
-              className="rounded-sm border-none bg-neutral-800! py-5"
+              onChange={(e) => setAgencyName(e.target.value)}
+              className="rounded-sm border-none bg-neutral-100 dark:bg-neutral-800! py-5"
             />
             <Input
+              required
               type="email"
               placeholder="Email"
-              className="rounded-sm border-none bg-neutral-800! py-5"
+              onChange={(e) => setEmail(e.target.value)}
+              className="rounded-sm border-none bg-neutral-100 dark:bg-neutral-800! py-5"
             />
             <div className="flex items-center gap-x-3">
               <Input
-                type="password"
+                required
+                type={showPassword ? "text" : "password"}
                 placeholder="Password"
-                className="rounded-sm border-none bg-neutral-800! py-5"
+                onChange={(e) => setPassword(e.target.value)}
+                className="rounded-sm border-none bg-neutral-100 dark:bg-neutral-800! py-5"
               />
 
-              <EyeClosed className="cursor-pointer" />
+              <Button
+                size={"icon"}
+                variant={"ghost"}
+                onClick={() => setShowPassword((p) => !p)}
+              >
+                {showPassword ? (
+                  <EyeClosed className="cursor-pointer" />
+                ) : (
+                  <Eye className="cursor-pointer" />
+                )}
+              </Button>
             </div>
             <div className="flex items-center justify-between mt-10">
               <Button
                 size={"lg"}
                 variant={"secondary"}
+                onClick={() => router.push("/")}
               >
                 Back to App
               </Button>
 
-              <Button
-                size={"lg"}
-              >
-                Sign Up
+              <Button size={"lg"} onClick={handleSignUp}>
+                {loading ? <Spinner /> : "Sign Up"}
               </Button>
             </div>
           </div>
@@ -82,6 +146,3 @@ const SignUpCard = () => {
     </>
   );
 };
-
-
-

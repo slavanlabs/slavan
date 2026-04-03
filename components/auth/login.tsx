@@ -1,12 +1,23 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { AuthNavBar } from "./auth-navbar";
+import { Eye, EyeClosed } from "lucide-react";
 import { Logo } from "../landing/nav-bar";
-import { Button } from "../ui/button";
 import { FcGoogle } from "react-icons/fc";
-import { Input } from "../ui/input";
-import { EyeClosed } from "lucide-react";
+import { AuthNavBar } from "./auth-navbar";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import * as z from "zod";
+import { toast } from "sonner";
+import { authClient } from "@/lib/better-auth-client";
+import { Spinner } from "../ui/spinner";
+
+const loginSchema = z.object({
+  email: z.email(),
+  password: z.string().min(8),
+});
 
 export const Login = () => {
   return (
@@ -19,6 +30,46 @@ export const Login = () => {
 };
 
 export const LoginCard = () => {
+  const router = useRouter();
+
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+  const [showPassword, setShowPassword] = useState<boolean>(true);
+
+  const handleLogin = async () => {
+    try {
+      const { success } = loginSchema.safeParse({
+        email: email.trim(),
+        password: password.trim(),
+      });
+      if (!success) {
+        toast.error("Invalid Email or Password");
+        return;
+      }
+
+      setLoading(true);
+
+      const { data, error } = await authClient.signIn.email(
+        {
+          email,
+          password,
+          callbackURL: "http://localhost:3000/dashboard",
+        },
+        {
+          onError: (ctx) => {
+            if (ctx.error.status === 403) {
+              toast.error("Please verify your email address");
+            }
+          },
+        },
+      );
+    } catch (error) {
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <>
       <AuthNavBar />
@@ -45,27 +96,46 @@ export const LoginCard = () => {
             <Input
               type="email"
               placeholder="Email"
-              className="rounded-sm border-none bg-neutral-800! py-5"
+              onChange={(e) => setEmail(e.target.value)}
+              className="rounded-sm border-none bg-neutral-100 dark:bg-neutral-800! py-5"
             />
             <div className="flex items-center gap-x-3">
               <Input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 placeholder="Password"
-                className="rounded-sm border-none bg-neutral-800! py-5"
+                onChange={(e) => setPassword(e.target.value)}
+                className="rounded-sm border-none bg-neutral-100 dark:sbg-neutral-800! py-5"
               />
 
-              <EyeClosed className="cursor-pointer" />
+              <Button
+                size={"icon"}
+                variant={"ghost"}
+                onClick={() => setShowPassword((p) => !p)}
+              >
+                {showPassword ? (
+                  <EyeClosed className="cursor-pointer" />
+                ) : (
+                  <Eye className="cursor-pointer" />
+                )}
+              </Button>
             </div>
             <div className="flex items-center justify-between mt-10">
-              <Button size={"lg"} variant={"secondary"}>
+              <Button
+                size={"lg"}
+                variant={"secondary"}
+                onClick={() => router.push("/")}
+              >
                 Back to App
               </Button>
 
-              <Button size={"lg"}>Sign In</Button>
+              <Button size={"lg"} onClick={handleLogin}>
+                {loading ? <Spinner /> : "Sign In"}
+              </Button>
             </div>
-
           </div>
-            <span className="mx-auto text-neutral-300 text-[14px] mt-8 cursor-pointer">Forgot Password?</span>
+          <span className="mx-auto text-neutral-500 dark:text-neutral-300 text-[14px] mt-8 cursor-pointer">
+            Forgot Password?
+          </span>
         </div>
       </div>
     </>
