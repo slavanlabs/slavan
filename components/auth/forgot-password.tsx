@@ -9,19 +9,30 @@ import { Spinner } from "../ui/spinner";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { authClient } from "@/lib/better-auth-client";
+import { motion, AnimatePresence } from "motion/react";
 
 export const ForgotPassword = () => {
   const [email, setEmail] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
+  const [messageSent, setMessageSent] = useState<boolean>(false);
 
   const router = useRouter();
 
   const handleSendResetPasswordLink = async () => {
-    await authClient.requestPasswordReset({
+    setLoading(true);
+    await authClient.requestPasswordReset(
+      {
         email,
-        redirectTo: "http://localhost:3000/reset-password"
-    })
-  }
+        redirectTo: "http://localhost:3000/reset-password",
+      },
+      {
+        onSuccess: () => {
+          setMessageSent(true);
+        },
+      },
+    );
+    setLoading(false);
+  };
 
   return (
     <div
@@ -29,7 +40,7 @@ export const ForgotPassword = () => {
         "flex flex-col items-center justify-center min-h-screen w-full",
       )}
     >
-      <div className="max-w-sm w-full">
+      <div className="max-w-sm w-full relative">
         <div className="flex items-center justify-center">
           <Logo />
         </div>
@@ -57,7 +68,11 @@ export const ForgotPassword = () => {
             >
               Back to App
             </Button>
-            <Button size={"lg"}>
+            <Button
+              size={"lg"}
+              disabled={loading || messageSent}
+              onClick={handleSendResetPasswordLink}
+            >
               {loading ? <Spinner /> : "Send Reset Link"}
             </Button>
           </div>
@@ -66,12 +81,25 @@ export const ForgotPassword = () => {
             Remember your password?{" "}
             <Link
               href={"/login"}
-              className="text-neutral-800 hover:underline transition"
+              className="text-neutral-200 dark:text-neutral-800 hover:underline transition"
             >
               Sign In
             </Link>
           </span>
         </div>
+
+        <AnimatePresence>
+          {messageSent && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+              className="text-center text-sm text-lime-500 absolute -bottom-10 left-1/2 -translate-x-1/2 whitespace-nowrap"
+            >
+              {"Sent reset password link to your email."}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );

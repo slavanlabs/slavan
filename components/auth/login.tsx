@@ -119,7 +119,7 @@ export const LoginCard = () => {
                 type={showPassword ? "text" : "password"}
                 placeholder="Password"
                 onChange={(e) => setPassword(e.target.value)}
-                className="rounded-sm border-none bg-neutral-100 dark:sbg-neutral-800! py-5"
+                className="rounded-sm border-none bg-neutral-100 dark:bg-neutral-800! py-5"
               />
 
               <Button
