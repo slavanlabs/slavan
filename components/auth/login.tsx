@@ -76,6 +76,10 @@ export const LoginCard = () => {
     })
   }
 
+  const handleForgotPassword = async () => {
+      router.push("/forgot-password")
+  }
+
   return (
     <>
       <AuthNavBar />
@@ -144,7 +148,9 @@ export const LoginCard = () => {
               </Button>
             </div>
           </div>
-          <span className="mx-auto text-neutral-500 dark:text-neutral-300 text-[14px] mt-8 cursor-pointer">
+          <span
+            onClick={handleForgotPassword}
+          className="mx-auto text-neutral-500 dark:text-neutral-300 text-[14px] mt-8 cursor-pointer">
             Forgot Password?
           </span>
         </div>
