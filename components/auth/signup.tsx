@@ -69,6 +69,12 @@ const SignUpCard = () => {
       setLoading(false);
     }
   };
+
+  const handleGoogleOAuth = async () => {
+    await authClient.signIn.social({
+      provider: "google"
+    })
+  }
   return (
     <>
       <AuthNavBar />
@@ -84,7 +90,12 @@ const SignUpCard = () => {
             </p>
           </div>
 
-          <Button size={"lg"} variant={"secondary"} className="py-5">
+          <Button 
+            size={"lg"} 
+            variant={"secondary"} 
+            onClick={handleGoogleOAuth}
+            className="py-5"
+          >
             <FcGoogle />
             <span>Continue with Google</span>
           </Button>
