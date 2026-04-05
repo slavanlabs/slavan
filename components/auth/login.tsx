@@ -70,6 +70,16 @@ export const LoginCard = () => {
     }
   };
 
+  const handleGoogleOAuth = async () => {
+    await authClient.signIn.social({
+      provider: "google"
+    })
+  }
+
+  const handleForgotPassword = async () => {
+      router.push("/forgot-password")
+  }
+
   return (
     <>
       <AuthNavBar />
@@ -85,7 +95,12 @@ export const LoginCard = () => {
             </p>
           </div>
 
-          <Button size={"lg"} variant={"secondary"} className="py-5">
+          <Button 
+            size={"lg"} 
+            variant={"secondary"} 
+            onClick={handleGoogleOAuth}
+            className="py-5"
+            >
             <FcGoogle />
             <span>Continue with Google</span>
           </Button>
@@ -104,7 +119,7 @@ export const LoginCard = () => {
                 type={showPassword ? "text" : "password"}
                 placeholder="Password"
                 onChange={(e) => setPassword(e.target.value)}
-                className="rounded-sm border-none bg-neutral-100 dark:sbg-neutral-800! py-5"
+                className="rounded-sm border-none bg-neutral-100 dark:bg-neutral-800! py-5"
               />
 
               <Button
@@ -133,7 +148,9 @@ export const LoginCard = () => {
               </Button>
             </div>
           </div>
-          <span className="mx-auto text-neutral-500 dark:text-neutral-300 text-[14px] mt-8 cursor-pointer">
+          <span
+            onClick={handleForgotPassword}
+          className="mx-auto text-neutral-500 dark:text-neutral-300 text-[14px] mt-8 cursor-pointer">
             Forgot Password?
           </span>
         </div>
