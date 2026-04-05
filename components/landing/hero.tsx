@@ -1,8 +1,12 @@
+"use client";
+
 import { ArrowRight } from "lucide-react";
 import { Button } from "../ui/button";
+import { useRouter } from "next/navigation";
 
 //TODO: Should complete the landing page
 export const Hero = () => {
+  const router = useRouter();
 
   return (
     <div className="max-w-6xl mx-auto  flex flex-col justify-center items-center space-y-6 min-h-screen">
@@ -14,7 +18,7 @@ export const Hero = () => {
         in seconds, not days.
       </p>
       <div className="flex items-center gap-3">
-        <Button size="lg" className="px-4">Get Started</Button>
+        <Button size="lg" className="px-4" onClick={() => router.push("/signup")}>Get Started</Button>
         <Button size="lg" variant={"outline"} className="px-4">
           View Demo
           <ArrowRight />
