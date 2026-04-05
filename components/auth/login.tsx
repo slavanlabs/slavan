@@ -1,18 +1,18 @@
 "use client";
 
-import { cn } from "@/lib/utils";
-import { Eye, EyeClosed } from "lucide-react";
-import { Logo } from "../landing/nav-bar";
-import { FcGoogle } from "react-icons/fc";
-import { AuthNavBar } from "./auth-navbar";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
 import * as z from "zod";
 import { toast } from "sonner";
+import { useState } from "react";
+import { cn } from "@/lib/utils";
+import { FcGoogle } from "react-icons/fc";
+import { AuthNavBar } from "./auth-navbar";
+import { useRouter } from "next/navigation";
+import { Eye, EyeClosed } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
+import { Logo } from "@/components/landing/nav-bar";
 import { authClient } from "@/lib/better-auth-client";
-import { Spinner } from "../ui/spinner";
 
 const loginSchema = z.object({
   email: z.email(),
