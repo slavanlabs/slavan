@@ -1,13 +1,13 @@
 "use client";
 
-import { cn } from "@/lib/utils";
-import { Logo } from "../landing/nav-bar";
-import { Input } from "../ui/input";
-import { useState } from "react";
-import { Button } from "../ui/button";
-import { Spinner } from "../ui/spinner";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
+import { useState } from "react";
+import { Logo } from "@/components/landing/nav-bar";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
+import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/better-auth-client";
 import { motion, AnimatePresence } from "motion/react";
 
