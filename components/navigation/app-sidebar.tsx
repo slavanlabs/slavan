@@ -11,9 +11,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarTrigger,
+  useSidebar,
 } from "@/components/ui/sidebar";
-import { Logo } from "@/components/landing/nav-bar";
-import { cn } from "@/lib/utils";
 import {
   BadgeDollarSign,
   CircleUserRound,
@@ -21,11 +20,13 @@ import {
   Search,
   Settings,
 } from "lucide-react";
-import { Kbd, KbdGroup } from "../ui/kbd";
-import { RiHome5Fill } from "react-icons/ri";
-import { TbInvoice } from "react-icons/tb";
-import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
+import { TbInvoice } from "react-icons/tb";
+import { RiHome5Fill } from "react-icons/ri";
+import { useRouter } from "next/navigation";
+import { Kbd, KbdGroup } from "@/components/ui/kbd";
+import { Logo } from "@/components/landing/nav-bar";
 
 const SIDEBAR_MENU_ITEMS = [
   {
@@ -66,19 +67,30 @@ const SIDEBAR_ACCOUNT_ITEMS = [
 export const AppSidebar = () => {
   const router = useRouter();
   const { theme, setTheme } = useTheme();
+  const { open, toggleSidebar } = useSidebar();
 
   return (
     <Sidebar variant="inset" collapsible="icon">
       <SidebarHeader>
         <div className={cn("flex items-center justify-between")}>
           <div className={cn("flex items-center gap-x-1.5")}>
-            <Logo />
-            <span className={cn("font-semibold text-xl tracking-tighter")}>
-              slavan
+            <span
+              onClick={() => {
+                if (!open) {
+                  toggleSidebar();
+                }
+              }}
+            >
+              <Logo />
             </span>
+            {open && (
+              <span className={cn("font-semibold text-xl tracking-tighter")}>
+                slavan
+              </span>
+            )}
           </div>
 
-          <SidebarTrigger />
+          {open && <SidebarTrigger/>}
         </div>
 
         <div
@@ -88,11 +100,13 @@ export const AppSidebar = () => {
         >
           <div className="flex items-center gap-x-2 text-neutral-600 dark:text-neutral-500">
             <Search size={18} />
-            <span className="text-sm">Search</span>
+            {open && <span className="text-sm">Search</span>}
           </div>
-          <KbdGroup>
-            <Kbd>⌘K</Kbd>
-          </KbdGroup>
+          {open && (
+            <KbdGroup>
+              <Kbd>⌘K</Kbd>
+            </KbdGroup>
+          )}
         </div>
       </SidebarHeader>
 
@@ -157,9 +171,9 @@ export const AppSidebar = () => {
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                     className="size-4.5"
                   >
                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>

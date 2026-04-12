@@ -10,15 +10,20 @@ datasource db {
 }
 
 model User {
-  id            String    @id
+  id            String  @id
   name          String
   email         String
-  emailVerified Boolean   @default(false)
+  emailVerified Boolean @default(false)
   image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  sessions      Session[]
-  accounts      Account[]
+
+  userType UserType @default(MEMBER)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  sessions  Session[]
+  accounts  Account[]
+  agency    Agency?
+  member    Member?
 
   @@unique([email])
   @@map("user")
@@ -76,10 +81,16 @@ model Agency {
   id   String @id @default(cuid())
   name String
 
-  createdAt DateTime  @default(now())
+  createdAt DateTime @default(now())
 
-  projects  Project[]
-  members   Member[]
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  projects Project[]
+  members  Member[]
+
+  @@unique([userId])
+  @@map("agency")
 }
 
 model Project {
@@ -87,41 +98,76 @@ model Project {
   name        String
   description String?
 
-  clientName  String
-  clientEmail String
+  clientName   String
+  clientEmail  String
+  invoiceImage String
 
-  status      ProjectStatus @default(DRAFT)
+  amount Decimal @db.Decimal(18, 6)
 
-  members Member[]
+  status            ProjectStatus @default(DRAFT)
+  clientTxSignature String?
 
-  agencyId String
-  agency   Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  agencyId       String
+  agency         Agency          @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+
+  projectMembers ProjectMember[]
+  transactions   Transaction[]
+
+  @@map("project")
 }
 
 model Member {
   id    String @id @default(cuid())
   name  String
-  email String
+  email String @unique
+
+  publicKey String?
+
+  userId   String @unique
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  agencyId String?
+  agency   Agency? @relation(fields: [agencyId], references: [id], onDelete: SetNull)
+
+  projectMembers ProjectMember[]
+
+  @@map("member")
+}
+
+model ProjectMember {
+  id           String       @id @default(cuid())
+  payoutAmount Decimal      @db.Decimal(18, 6)
+  payoutStatus PayoutStatus @default(PENDING)
+  txSignature  String?
+
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  memberId String
+  member   Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, memberId])
+  @@map("project_member")
+}
+
+// maintain the transaction history
+model Transaction {
+  id     String @id @default(cuid())
+  from   String
+  to     String
+  amount Decimal  @db.Decimal(18, 6)
+
+  txSignature String @unique
+
+  type TransactionType
+
+  createdAt DateTime @default(now())
 
   projectId String?
-  project   Project? @relation(fields: [projectId], references: [id])
+  project   Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
 
-  agencyId String
-  agency   Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  @@map("transaction")
 }
-
-// maintain the transaction of each agency.
-model AgencyTransaction {
-  id String @id @default(cuid())
-
-
-}
-
-// maintain the transaction history of members
-model MemberTransaction {
-  
-}
-
 
 enum ProjectStatus {
   DRAFT
@@ -129,4 +175,19 @@ enum ProjectStatus {
   CLIENT_PAID
   MEMBERS_PAID
   COMPLETED
+}
+
+enum TransactionType {
+  PAYMENT_BY_CLIENT
+  AGENCY_PAID_MEMBERS
+}
+
+enum UserType {
+  AGENCY_OWNER
+  MEMBER
+}
+
+enum PayoutStatus {
+  PENDING
+  SUCCESS
 }
