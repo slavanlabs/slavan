@@ -1,3 +1,5 @@
+import { ProjectDashboard } from "@/components/project/project-dashboard";
+
 export default function ProjectsPage() {
-    return <div>Project page</div>
+    return <ProjectDashboard />
 }

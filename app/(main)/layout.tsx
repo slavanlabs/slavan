@@ -9,7 +9,7 @@ export default function MainLayout({
   return (
     <SidebarProvider>
       <AppSidebar />
-      <SidebarInset className="p-4">{children}</SidebarInset>
+      <SidebarInset className="p-6">{children}</SidebarInset>
     </SidebarProvider>
   );
 }
