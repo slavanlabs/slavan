@@ -1,7 +1,9 @@
-import { Analytics } from "@/components/dashboard/analytics";
+import { DashboardAnalytics } from "@/components/dashboard/dashboard-analytics";
 
 export default function DashboardPage() {
-    return <div className="w-full">
-        <Analytics />
+  return (
+    <div className="w-full">
+      <DashboardAnalytics />
     </div>
+  );
 }

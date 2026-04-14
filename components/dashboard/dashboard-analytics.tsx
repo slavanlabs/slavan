@@ -1,5 +1,4 @@
 "use client";
-
 import { cn } from "@/lib/utils";
 import {
   AnalyticsCard,
@@ -8,9 +7,8 @@ import {
   AnalyticsMainContent,
   AnalyticsTitle,
 } from "@/components/cards/analytics-card";
-import React from "react";
 
-export const Analytics = () => {
+export const DashboardAnalytics = () => {
   return (
     <div className={cn("grid grid-cols-4 gap-4 w-full")}>
       <AnalyticsCard>
