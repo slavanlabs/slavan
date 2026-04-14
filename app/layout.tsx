@@ -18,9 +18,9 @@ export const metadata: Metadata = {
   description: "The payment system for global agencies",
   icons: {
     icon: {
-      url: "/logo.svg",
-    },
-  },
+      url: "/logo.svg"
+    }
+  }
 };
 
 export default function RootLayout({
