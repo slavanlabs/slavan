@@ -16,6 +16,7 @@ import {
 import {
   BadgeDollarSign,
   CircleUserRound,
+  History,
   Layers2,
   Search,
   Settings,
@@ -47,6 +48,12 @@ const SIDEBAR_MENU_ITEMS = [
     icon: TbInvoice,
     href: "/invoices",
   },
+  {
+    id: 4,
+    name: "transactions",
+    icon: History,
+    href: "/transactions",
+  }
 ];
 
 const SIDEBAR_ACCOUNT_ITEMS = [
