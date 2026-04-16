@@ -7,7 +7,6 @@ import {
   CartesianGrid,
   Cell,
   Label,
-  LabelList,
   Pie,
   PieChart,
   XAxis,
