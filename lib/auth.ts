@@ -12,13 +12,13 @@ export const auth = betterAuth({
         to: user.email,
         subject: "Reset your password",
         text: `Click the link to reset your password: ${url}`,
-      })
-    }
+      });
+    },
   },
   socialProviders: {
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     },
   },
   emailVerification: {
@@ -29,6 +29,23 @@ export const auth = betterAuth({
         text: `Click the link to verify your email: ${url}`,
       });
     },
+
+    async afterEmailVerification(user) {
+      await prisma.member.upsert({
+        where: {
+          userId: user.id,
+        },
+        update: {
+          email: user.email,
+          name: user.name,
+        },
+        create: {
+          email: user.email,
+          name: user.name,
+          userId: user.id,
+        }
+      })
+    }
   },
   database: prismaAdapter(prisma, {
     provider: "postgresql",

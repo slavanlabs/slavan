@@ -18,10 +18,11 @@ model User {
 
   userType UserType @default(MEMBER)
 
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
   sessions  Session[]
   accounts  Account[]
+  invites   AgencyInvite[]
   agency    Agency?
   member    Member?
 
@@ -88,9 +89,30 @@ model Agency {
 
   projects Project[]
   members  Member[]
+  invites  AgencyInvite[]
 
   @@unique([userId])
   @@map("agency")
+}
+
+model AgencyInvite {
+  id    String @id @default(cuid())
+  email String
+
+  agencyId String
+  agency   Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+
+  inviteToken String       @unique
+  status      InviteStatus @default(PENDING)
+
+  invitedById String
+  invitedBy   User   @relation(fields: [invitedById], references: [id], onDelete: Cascade)
+
+  expiresAt  DateTime
+  acceptedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@map("agency_invite")
 }
 
 model Project {
@@ -107,8 +129,8 @@ model Project {
   status            ProjectStatus @default(DRAFT)
   clientTxSignature String?
 
-  agencyId       String
-  agency         Agency          @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  agencyId String
+  agency   Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade)
 
   projectMembers ProjectMember[]
   transactions   Transaction[]
@@ -123,8 +145,8 @@ model Member {
 
   publicKey String?
 
-  userId   String @unique
-  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   agencyId String?
   agency   Agency? @relation(fields: [agencyId], references: [id], onDelete: SetNull)
@@ -152,10 +174,10 @@ model ProjectMember {
 
 // maintain the transaction history
 model Transaction {
-  id     String @id @default(cuid())
+  id     String  @id @default(cuid())
   from   String
   to     String
-  amount Decimal  @db.Decimal(18, 6)
+  amount Decimal @db.Decimal(18, 6)
 
   txSignature String @unique
 
@@ -190,4 +212,11 @@ enum UserType {
 enum PayoutStatus {
   PENDING
   SUCCESS
+}
+
+enum InviteStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  REVOKED
 }
