@@ -9,8 +9,11 @@ import { ProjectAnalytics } from "./project-analytics";
 import { ProjectCharts } from "./project-charts";
 import { projects } from "@/utils/project-data";
 import { columns } from "./table/project-table-columns";
+import { useRouter } from "next/navigation";
 
 export const ProjectDashboard = () => {
+  const router = useRouter();
+
   return (
     <div className={cn("flex flex-col w-full")}>
       <div className={cn("w-full")}>
@@ -19,6 +22,7 @@ export const ProjectDashboard = () => {
           <Button
             size={"lg"}
             variant={"outline"}
+            onClick={() => router.push("/projects/new")}
             className={cn(
               "bg-linear-to-b from-white to-[#f5f5f5]",
               "dark:from-[#1c1c1c] dark:to-[#141414]",

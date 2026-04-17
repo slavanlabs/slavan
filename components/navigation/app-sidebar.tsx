@@ -4,6 +4,7 @@ import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
+  SidebarGroupAction,
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarHeader,
@@ -18,8 +19,10 @@ import {
   CircleUserRound,
   History,
   Layers2,
+  Plus,
   Search,
   Settings,
+  User,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
@@ -28,6 +31,7 @@ import { RiHome5Fill } from "react-icons/ri";
 import { useRouter } from "next/navigation";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { Logo } from "@/components/landing/nav-bar";
+import { useModal } from "@/context/modal-context";
 
 const SIDEBAR_MENU_ITEMS = [
   {
@@ -53,7 +57,7 @@ const SIDEBAR_MENU_ITEMS = [
     name: "transactions",
     icon: History,
     href: "/transactions",
-  }
+  },
 ];
 
 const SIDEBAR_ACCOUNT_ITEMS = [
@@ -71,10 +75,30 @@ const SIDEBAR_ACCOUNT_ITEMS = [
   },
 ];
 
+const SIDEBAR_MEMBERS = [
+  {
+    id: 1,
+    name: "Abhivignesh Kappala",
+    email: "abhivignesh@example.com",
+    role: "developer",
+  },
+  {
+    id: 2,
+    name: "Yuvan",
+    email: "yuvan.doe@example.com",
+    role: "designer",
+  },
+];
+
 export const AppSidebar = () => {
   const router = useRouter();
   const { theme, setTheme } = useTheme();
   const { open, toggleSidebar } = useSidebar();
+  const { openModal } = useModal();
+
+  function onAddMember() {
+    openModal("add_member");
+  }
 
   return (
     <Sidebar variant="inset" collapsible="icon">
@@ -97,12 +121,22 @@ export const AppSidebar = () => {
             )}
           </div>
 
-          {open && <SidebarTrigger/>}
+          {open && <SidebarTrigger />}
         </div>
 
         <div
           className={cn(
-            "w-full flex items-center justify-between bg-neutral-200 dark:bg-neutral-800 p-2 mt-2 rounded-lg",
+            "bg-linear-to-b from-white to-[#f5f5f5]",
+            "dark:from-[#1c1c1c] dark:to-[#141414]",
+            "border border-neutral-200/80 dark:border-neutral-800/80",
+            "shadow-[0_1px_2px_rgba(0,0,0,0.04),0_4px_12px_rgba(0,0,0,0.06)]",
+            "dark:shadow-[0_2px_8px_rgba(0,0,0,0.4),0_8px_24px_rgba(0,0,0,0.5)]",
+            "ring-1 ring-black/3 dark:ring-white/5",
+            "transition-shadow duration-200",
+            "focus-within:shadow-[0_1px_2px_rgba(0,0,0,0.04),0_4px_16px_rgba(0,0,0,0.1)]",
+            "focus-within:ring-black/8 dark:focus-within:ring-white/10",
+            "focus-within:border-neutral-300 dark:focus-within:border-neutral-700",
+            "flex items-center justify-between px-2 py-2 mt-4 rounded-xl",
           )}
         >
           <div className="flex items-center gap-x-2 text-neutral-600 dark:text-neutral-500">
@@ -129,6 +163,34 @@ export const AppSidebar = () => {
                     <SidebarMenuButton onClick={() => router.push(i.href)}>
                       <Icon />
                       <span className="capitalize">{i.name}</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel className="uppercase">members</SidebarGroupLabel>
+          <SidebarGroupAction className="cursor-pointer" onClick={onAddMember}>
+            <Plus /> <span className="sr-only">Add Member</span>
+          </SidebarGroupAction>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {SIDEBAR_MEMBERS.map((m) => {
+                return (
+                  <SidebarMenuItem key={m.id}>
+                    <SidebarMenuButton>
+                      <div
+                        className={cn(
+                          "w-1.5 h-1.5 rounded-full",
+                          m.role === "developer"
+                            ? "bg-blue-500"
+                            : "bg-violet-500",
+                        )}
+                      />
+                      <span className="capitalize">{m.name}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 );
