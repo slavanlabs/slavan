@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
   const agency = await prisma.agency.findFirst({
     where: {
       userId: session?.session.userId,
-    },  
+    },
   });
 
   if (!agency) {
@@ -34,6 +34,21 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  const existingInvite = await prisma.agencyInvite.findFirst({
+    where: {
+      agencyId: agency.id,
+      email,
+      status: "PENDING",
+    },
+  });
+
+  if (existingInvite) {
+    return NextResponse.json(
+      { message: "INVITE_ALREADY_SENT" },
+      { status: 403 },
+    );
+  }
+
   const inviteToken = crypto.randomUUID();
   const invite = await prisma.agencyInvite.create({
     data: {
@@ -50,7 +65,6 @@ export async function POST(req: NextRequest) {
     subject: `You're invited to join ${agency.name} on Slavan`,
     text: `You have been invited to join the agency ${agency.name} on Slavan. Click the link below to accept the invitation:\n\n${process.env.NEXT_PUBLIC_BASE_URL}/accept-invite?token=${inviteToken}\n\nThis invitation will expire in 7 days.`,
   });
-  console.log(invite);
-  
+
   return NextResponse.json({ message: "INVITE_SENT", invite });
 }

@@ -81,7 +81,7 @@ export const ForgotPassword = () => {
             Remember your password?{" "}
             <Link
               href={"/login"}
-              className="text-neutral-200 dark:text-neutral-800 hover:underline transition"
+              className="text-neutral-200 dark:text-neutral-600 hover:underline dark:hover:text-neutral-200 transition"
             >
               Sign In
             </Link>

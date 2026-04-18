@@ -64,7 +64,7 @@ export const CreateProjectForm = () => {
   }
 
   function handleContinue() {
-    if(!haveProjectDetails) {
+    if (!haveProjectDetails) {
       setHaveProjectDetails(true);
     } else if (!haveClientInformation) {
       setHaveClientInformation(true);
@@ -110,7 +110,7 @@ export const CreateProjectForm = () => {
       >
         {/* Step 1: Project Details */}
         {!haveProjectDetails && (
-          <Card className="rounded-lg py-8! px-4">
+          <Card className={cn("rounded-lg py-8! px-4")}>
             <CardHeader>
               <CardTitle>Project Details</CardTitle>
               <CardDescription>
@@ -198,7 +198,7 @@ export const CreateProjectForm = () => {
         )}
 
         {haveProjectDetails && !haveClientInformation && (
-          <Card className="rounded-lg py-8! px-4">
+          <Card className={cn("rounded-lg py-8! px-4")}>
             <CardHeader>
               <CardTitle>Client Information</CardTitle>
               <CardDescription>
@@ -261,77 +261,79 @@ export const CreateProjectForm = () => {
             </CardContent>
           </Card>
         )}
-        {haveProjectDetails && haveClientInformation && !haveAssignedMembers && (
-          <Card className="rounded-lg py-8! px-4">
-            <CardHeader>
-              <CardTitle>Assign Team Members</CardTitle>
-              <CardDescription>
-               Select who will work on this project.
-              </CardDescription>
-            </CardHeader>
+        {haveProjectDetails &&
+          haveClientInformation &&
+          !haveAssignedMembers && (
+            <Card className={cn("rounded-lg py-8! px-4")}>
+              <CardHeader>
+                <CardTitle>Assign Team Members</CardTitle>
+                <CardDescription>
+                  Select who will work on this project.
+                </CardDescription>
+              </CardHeader>
 
-            <CardContent>
-              {/* Form fields for project details */}
-              <FieldGroup>
-                <Controller
-                  name="clientInformation.name"
-                  control={form.control}
-                  render={({ field, fieldState }) => {
-                    return (
-                      <Field data-invalid={fieldState.invalid}>
-                        <FieldLabel htmlFor="form-create-project-client-name">
-                          Project Name
-                        </FieldLabel>
-                        <Input
-                          {...field}
-                          id="form-create-project-client-name"
-                          aria-invalid={fieldState.invalid}
-                          placeholder="Yuvan"
-                          autoComplete="off"
-                        />
-                        {fieldState.invalid && (
-                          <FieldError errors={[fieldState.error]} />
-                        )}
-                      </Field>
-                    );
-                  }}
-                />
+              <CardContent>
+                {/* Form fields for project details */}
+                <FieldGroup>
+                  <Controller
+                    name="clientInformation.name"
+                    control={form.control}
+                    render={({ field, fieldState }) => {
+                      return (
+                        <Field data-invalid={fieldState.invalid}>
+                          <FieldLabel htmlFor="form-create-project-client-name">
+                            Project Name
+                          </FieldLabel>
+                          <Input
+                            {...field}
+                            id="form-create-project-client-name"
+                            aria-invalid={fieldState.invalid}
+                            placeholder="Yuvan"
+                            autoComplete="off"
+                          />
+                          {fieldState.invalid && (
+                            <FieldError errors={[fieldState.error]} />
+                          )}
+                        </Field>
+                      );
+                    }}
+                  />
 
-                <Controller
-                  name="clientInformation.billingEmail"
-                  control={form.control}
-                  render={({ field, fieldState }) => {
-                    return (
-                      <Field data-invalid={fieldState.invalid}>
-                        <FieldLabel htmlFor="form-create-project-client-billing-email">
-                          Description
-                        </FieldLabel>
-                        <Input
-                          {...field}
-                          id="form-create-project-client-billing-email"
-                          type="email"
-                          placeholder="yuvan@gmail.com"
-                          autoComplete="off"
-                          className="resize-none"
-                        />
-                        {fieldState.invalid && (
-                          <FieldError errors={[fieldState.error]} />
-                        )}
-                      </Field>
-                    );
-                  }}
-                />
-              </FieldGroup>
-            </CardContent>
-          </Card>
-        )}
+                  <Controller
+                    name="clientInformation.billingEmail"
+                    control={form.control}
+                    render={({ field, fieldState }) => {
+                      return (
+                        <Field data-invalid={fieldState.invalid}>
+                          <FieldLabel htmlFor="form-create-project-client-billing-email">
+                            Description
+                          </FieldLabel>
+                          <Input
+                            {...field}
+                            id="form-create-project-client-billing-email"
+                            type="email"
+                            placeholder="yuvan@gmail.com"
+                            autoComplete="off"
+                            className="resize-none"
+                          />
+                          {fieldState.invalid && (
+                            <FieldError errors={[fieldState.error]} />
+                          )}
+                        </Field>
+                      );
+                    }}
+                  />
+                </FieldGroup>
+              </CardContent>
+            </Card>
+          )}
 
         <div className={cn("flex items-center justify-between mt-10")}>
-          <Button>Cancel</Button>
+          <Button variant={"outline"}>Cancel</Button>
 
-          <Button 
-            onClick={handleContinue}
-          >Continue</Button>
+          <Button variant={"outline"} onClick={handleContinue}>
+            Continue
+          </Button>
         </div>
       </form>
     </div>
