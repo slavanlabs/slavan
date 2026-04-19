@@ -44,93 +44,100 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
-  const { token, action, email } = await req.json();
+  try {
+    const { token, action, email } = await req.json();
 
-  if (!token) {
-    return NextResponse.json({ message: "NO_INVITE_TOKEN" }, { status: 404 });
-  }
+    if (!token) {
+      return NextResponse.json({ message: "NO_INVITE_TOKEN" }, { status: 404 });
+    }
 
-  const invite = await prisma.agencyInvite.findUnique({
-    where: {
-      inviteToken: token,
-    },
-  });
-
-  if (!invite) {
-    return NextResponse.json({ message: "NO_INVITE_FOUND" }, { status: 404 });
-  }
-
-  if (action === "decline") {
-    await prisma.agencyInvite.update({
+    const invite = await prisma.agencyInvite.findUnique({
       where: {
-        id: invite.id,
-      },
-      data: {
-        status: "DECLINED",
+        inviteToken: token,
       },
     });
 
-    return NextResponse.json({ message: "INVITE_DECLINED" });
-  }
+    if (!invite) {
+      return NextResponse.json({ message: "NO_INVITE_FOUND" }, { status: 404 });
+    }
 
-  const existingUser = await prisma.user.findUnique({
-    where: {
-      email,
-    },
-    include: {
-      member: true,
-    },
-  });
+    if (action === "decline") {
+      await prisma.agencyInvite.update({
+        where: {
+          id: invite.id,
+        },
+        data: {
+          status: "DECLINED",
+        },
+      });
 
-  if (!existingUser) {
-    return NextResponse.json({ message: "USER_NOT_FOUND" }, { status: 404 });
-  }
+      return NextResponse.json({ message: "INVITE_DECLINED" });
+    }
 
-  if (existingUser.userType === "AGENCY_OWNER") {
-    return NextResponse.json(
-      { message: "ACTION_NOT_ALLOWED" },
-      { status: 405 },
-    );
-  }
-
-  if (existingUser.member?.agencyId) {
-    return NextResponse.json(
-      { message: "ALREADY_PRESENT_IN_AN_AGENCY" },
-      { status: 409 },
-    );
-  }
-
-  if (existingUser.member?.agencyId === invite.agencyId) {
-    return NextResponse.json(
-      { message: "EXISTS_IN_CURRENT_AGENCY" },
-      { status: 409 },
-    );
-  }
-
-  await prisma.$transaction(async (tx) => {
-    await tx.agencyInvite.update({
-      where: { id: invite.id },
-      data: { status: "ACCEPTED", acceptedAt: new Date() },
-    });
-
-    await tx.member.upsert({
-      where: { userId: existingUser.id },
-      create: {
-        name: existingUser.name,
-        email: existingUser.email,
-        userId: existingUser.id,
-        agencyId: invite.agencyId,
+    const existingUser = await prisma.user.findUnique({
+      where: {
+        email,
       },
-      update: {
-        agencyId: invite.agencyId,
+      include: {
+        member: true,
       },
     });
 
-    await tx.user.update({
-      where: { id: existingUser.id },
-      data: { userType: "MEMBER" },
-    });
+    if (!existingUser) {
+      return NextResponse.json({ message: "USER_NOT_FOUND" }, { status: 404 });
+    }
 
+    if (existingUser.userType === "AGENCY_OWNER") {
+      return NextResponse.json(
+        { message: "ACTION_NOT_ALLOWED" },
+        { status: 405 },
+      );
+    }
+
+    if (existingUser.member?.agencyId) {
+      return NextResponse.json(
+        { message: "ALREADY_PRESENT_IN_AN_AGENCY" },
+        { status: 409 },
+      );
+    }
+
+    if (existingUser.member?.agencyId === invite.agencyId) {
+      return NextResponse.json(
+        { message: "EXISTS_IN_CURRENT_AGENCY" },
+        { status: 409 },
+      );
+    }
+
+    await prisma.$transaction(async (tx) => {
+      await tx.agencyInvite.update({
+        where: { id: invite.id },
+        data: { status: "ACCEPTED", acceptedAt: new Date() },
+      });
+
+      await tx.member.upsert({
+        where: { userId: existingUser.id },
+        create: {
+          name: existingUser.name,
+          email: existingUser.email,
+          userId: existingUser.id,
+          agencyId: invite.agencyId,
+        },
+        update: {
+          agencyId: invite.agencyId,
+        },
+      });
+
+      await tx.user.update({
+        where: { id: existingUser.id },
+        data: { userType: "MEMBER" },
+      });
+    });
     return NextResponse.json({ message: "SUCCESS" }, { status: 200 });
-  });
+  } catch (error) {
+    console.log("[INVITE_PATCH_ERROR]", error);
+    return NextResponse.json(
+      { message: "INTERNAL_SERVER_ERROR" },
+      { status: 500 },
+    );
+  }
 }

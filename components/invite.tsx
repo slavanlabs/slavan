@@ -11,6 +11,7 @@ import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { ArrowRight } from "lucide-react";
 import { Spinner } from "./ui/spinner";
+import { useRouter } from "next/navigation";
 
 interface InviteDetails {
   id: string;
@@ -25,8 +26,12 @@ interface InviteDetails {
 
 export const Invite = () => {
   const params = useParams();
+  const router = useRouter();
+
   const token = params.token as string;
-  const [inviteDetails, setInviteDetails] = useState<InviteDetails | null>(null);
+  const [inviteDetails, setInviteDetails] = useState<InviteDetails | null>(
+    null,
+  );
   const [loadingAccept, setLoadingAccept] = useState<boolean>(false);
   const [loadingDecline, setLoadingDecline] = useState<boolean>(false);
 
@@ -50,8 +55,15 @@ export const Invite = () => {
     const response = await axios.patch("/api/invite", {
       token,
       action: "accept",
-      email: inviteDetails?.email
+      email: inviteDetails?.email,
     });
+
+    if (response.data.message === "USER_NOT_FOUND") {
+      toast("Please create an account first");
+      router.push("/signup");
+      return;
+    }
+
     if (response.status === 200) {
       toast.success("Successfully Joined");
     }
