@@ -10,10 +10,17 @@ interface AgenyStore {
   projects: Project[];
   members: Member[];
 
+  setAgency: (agency: Agency) => void;
+  setProjects: (projects: Project[]) => void;
+  setMembers: (members: Member[]) => void;
+
+  addProject: (project: Project) => void;
+  removeProject: (project: Project) => void;
+
   reset: () => void;
 }
 
-const useAgency = create<AgenyStore>((set, get) => ({
+export const useAgency = create<AgenyStore>((set, get) => ({
   agency: null,
   projects: [],
   members: [],
