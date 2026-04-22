@@ -22,7 +22,6 @@ import {
   Plus,
   Search,
   Settings,
-  User,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
@@ -32,6 +31,7 @@ import { useRouter } from "next/navigation";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { Logo } from "@/components/landing/nav-bar";
 import { useModal } from "@/context/modal-context";
+import { useAgency } from "@/store/useAgency";
 
 const SIDEBAR_MENU_ITEMS = [
   {
@@ -75,26 +75,13 @@ const SIDEBAR_ACCOUNT_ITEMS = [
   },
 ];
 
-const SIDEBAR_MEMBERS = [
-  {
-    id: 1,
-    name: "Abhivignesh Kappala",
-    email: "abhivignesh@example.com",
-    role: "developer",
-  },
-  {
-    id: 2,
-    name: "Yuvan",
-    email: "yuvan.doe@example.com",
-    role: "designer",
-  },
-];
 
 export const AppSidebar = () => {
   const router = useRouter();
   const { theme, setTheme } = useTheme();
   const { open, toggleSidebar } = useSidebar();
   const { openModal } = useModal();
+  const members = useAgency((state) => state.members);
 
   function onAddMember() {
     openModal("add_member");
@@ -178,23 +165,26 @@ export const AppSidebar = () => {
           </SidebarGroupAction>
           <SidebarGroupContent>
             <SidebarMenu>
-              {SIDEBAR_MEMBERS.map((m) => {
-                return (
-                  <SidebarMenuItem key={m.id}>
-                    <SidebarMenuButton>
-                      <div
-                        className={cn(
-                          "w-1.5 h-1.5 rounded-full",
-                          m.role === "developer"
-                            ? "bg-blue-500"
-                            : "bg-violet-500",
-                        )}
-                      />
-                      <span className="capitalize">{m.name}</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
+              {members ? (
+                <>
+                  {members.map((m) => {
+                    return (
+                      <SidebarMenuItem key={m.id}>
+                        <SidebarMenuButton>
+                          <div
+                            className={cn(
+                              "w-1.5 h-1.5 rounded-full bg-blue-500",
+                            )}
+                          />
+                          <span className="capitalize">{m.name}</span>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    );
+                  })}
+                </>
+              ) : (
+                <span className="text-sm text-neutral-500">No members yet</span>
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
