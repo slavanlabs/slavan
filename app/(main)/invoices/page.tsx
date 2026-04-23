@@ -1,3 +1,5 @@
+import { Invoice } from "@/components/invoice/invoice";
+
 export default function InvoicesPage() {
-    return <div>Invoices Page</div>
+    return <Invoice />
 }

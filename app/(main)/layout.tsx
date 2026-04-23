@@ -31,7 +31,7 @@ export default async function MainLayout({
     <SidebarProvider>
       <AgencyStoreHydrator agency={agency}/>
       <AppSidebar />
-      <SidebarInset className="p-6">{children}</SidebarInset>
+      <SidebarInset>{children}</SidebarInset>
     </SidebarProvider>
   );
 }

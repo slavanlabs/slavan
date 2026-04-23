@@ -1,5 +1,3 @@
-// lib/styles.ts
-
 export const glassCard = [
   "bg-linear-to-b from-white to-[#f5f5f5]",
   "dark:from-[#1c1c1c] dark:to-[#141414]",

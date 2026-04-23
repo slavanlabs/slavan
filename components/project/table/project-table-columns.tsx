@@ -24,8 +24,10 @@ export const columns: ColumnDef<Project>[] = [
 
       return (
         <div className="text-right font-medium flex items-center gap-1">
-          <img src={"/usdc.svg"} />
-          {amount.toFixed(2)}
+          {amount.toLocaleString("en-US", {
+            style: "currency",
+            currency: "USD",
+          })}
         </div>
       );
     },
