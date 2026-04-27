@@ -4,10 +4,12 @@ import { GoPlusCircle } from "react-icons/go";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ReceiptText, RefreshCcw, Settings } from "lucide-react";
+import { InvoiceToolbar } from "./invoice-toolbar";
 
 export const Invoice = () => {
   return (
     <div className={cn("flex flex-col")}>
+      {/* Top-bar */}
       <div className={cn("flex items-center justify-between p-4 px-6")}>
         <div className={cn("flex items-center gap-x-1.5")}>
           <div
@@ -25,11 +27,21 @@ export const Invoice = () => {
             <RefreshCcw />
             Recurring Invoices
           </Button>
-          <Button variant={"outline"}> <Settings size={18} /> Settings</Button>
+          <Button variant={"outline"}>
+            {" "}
+            <Settings size={18} /> Settings
+          </Button>
 
-          <Button className=""><GoPlusCircle /> New Invoice</Button>
+          <Button className="">
+            <GoPlusCircle /> New Invoice
+          </Button>
         </div>
       </div>
+      <Separator />
+
+      {/* Invoice tool-bar */}
+      <InvoiceToolbar />
+      
       <Separator />
     </div>
   );
