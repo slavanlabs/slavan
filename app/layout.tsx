@@ -18,9 +18,9 @@ export const metadata: Metadata = {
   description: "The payment system for global agencies",
   icons: {
     icon: {
-      url: "/logo.svg"
-    }
-  }
+      url: "/logo.svg",
+    },
+  },
 };
 
 export default function RootLayout({
@@ -31,7 +31,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased selection:text-white selection:bg-black dark:selection:text-black dark:selection:bg-white`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased selection:text-black selection:bg-white`}
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col">

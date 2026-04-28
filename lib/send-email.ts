@@ -11,6 +11,8 @@ export async function sendEmail({
   subject: string;
   text: string;
 }) {
+  console.log("inside resend email");
+  
   const { data, error } = await resend.emails.send({
     from: "Slavan <onboarding@resend.dev>",
     to,
