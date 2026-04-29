@@ -16,7 +16,7 @@ jobs:
         with: { node-version: 24 }
 
       - name: Install Dependencies
-        run: npm install 
+        run: npm install
 
       - name: Generate prisma client
         run: npm run db:generate 

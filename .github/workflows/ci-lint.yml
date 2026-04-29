@@ -1,1 +1,19 @@
-name: Check lint
+name: Lint on PR
+
+on:
+    pull_request:
+        branches: [ main ]
+
+jobs:
+    lint:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+            - uses: actions/setup-node@v3
+              with: { node-version: 24 }
+
+            - name: Install Dependencies
+              run: npm install
+
+            - name: Linting code
+              run: npm run lint
