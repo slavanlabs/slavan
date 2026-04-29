@@ -16,15 +16,13 @@ model User {
   emailVerified Boolean @default(false)
   image         String?
 
-  userType UserType @default(MEMBER)
+  userType UserType @default(ORG_OWNER)
 
-  createdAt DateTime       @default(now())
-  updatedAt DateTime       @updatedAt
-  sessions  Session[]
-  accounts  Account[]
-  invites   AgencyInvite[]
-  agency    Agency?
-  member    Member?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  sessions     Session[]
+  accounts     Account[]
+  organization Organization?
 
   @@unique([email])
   @@map("user")
@@ -78,98 +76,29 @@ model Verification {
   @@map("verification")
 }
 
-model Agency {
+// Organization Model
+model Organization {
   id   String @id @default(cuid())
   name String
 
-  createdAt DateTime @default(now())
+  organizationType String
+  address          String
+  city             String
+  country          String
+
+  agreedToTerms       Boolean   @default(false)
+  agreedAt            DateTime?
+  onboardingCompleted Boolean   @default(false)
+  createdAt           DateTime  @default(now())
 
   userId String
-  user   User   @relation(fields: [userId], references: [id])
-
-  projects Project[]
-  members  Member[]
-  invites  AgencyInvite[]
-
-  @@unique([userId])
-  @@map("agency")
-}
-
-model AgencyInvite {
-  id    String @id @default(cuid())
-  email String
-
-  agencyId String
-  agency   Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade)
-
-  inviteToken String       @unique
-  status      InviteStatus @default(PENDING)
-
-  invitedById String
-  invitedBy   User   @relation(fields: [invitedById], references: [id], onDelete: Cascade)
-
-  expiresAt  DateTime
-  acceptedAt DateTime?
-  createdAt  DateTime  @default(now())
-
-  @@map("agency_invite")
-}
-
-model Project {
-  id          String  @id @default(cuid())
-  name        String
-  description String?
-
-  clientName   String
-  clientEmail  String
-  invoiceImage String
-
-  amount Decimal @db.Decimal(18, 6)
-
-  status            ProjectStatus @default(DRAFT)
-  clientTxSignature String?
-
-  agencyId String
-  agency   Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade)
-
-  projectMembers ProjectMember[]
-  transactions   Transaction[]
-
-  @@map("project")
-}
-
-model Member {
-  id    String @id @default(cuid())
-  name  String
-  email String @unique
-
-  publicKey String?
-
-  userId String @unique
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  agencyId String?
-  agency   Agency? @relation(fields: [agencyId], references: [id], onDelete: SetNull)
+  invoices  Invoice[] // one org can have multiple invoices.
+  customers Customer[] // one org can have multiple customers
 
-  projectMembers ProjectMember[]
-
-  @@map("member")
-}
-
-model ProjectMember {
-  id           String       @id @default(cuid())
-  payoutAmount Decimal      @db.Decimal(18, 6)
-  payoutStatus PayoutStatus @default(PENDING)
-  txSignature  String?
-
-  projectId String
-  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-
-  memberId String
-  member   Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
-
-  @@unique([projectId, memberId])
-  @@map("project_member")
+  @@unique([userId])
+  @@map("organization")
 }
 
 // maintain the transaction history
@@ -177,46 +106,94 @@ model Transaction {
   id     String  @id @default(cuid())
   from   String
   to     String
-  amount Decimal @db.Decimal(18, 6)
+  amount Int
 
-  txSignature String @unique
-
-  type TransactionType
+  status      TransactionStatus @default(PENDING)
+  txSignature String            @unique
+  circleId    String            @unique
+  invoiceId   String
+  invoice     Invoice           @relation(fields: [invoiceId], references: [id])
 
   createdAt DateTime @default(now())
-
-  projectId String?
-  project   Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
-
+  settledAt DateTime?
   @@map("transaction")
 }
 
-enum ProjectStatus {
-  DRAFT
-  INVOICE_SENT
-  CLIENT_PAID
-  MEMBERS_PAID
-  COMPLETED
+model Invoice {
+  id String @id @default(cuid())
+
+  status      InvoiceStatus @default(UNPAID)
+  currency    String
+  title       String
+
+  subtotal Int
+  discount Int @default(0)
+  tax      Int
+  total    Int
+
+  discountPercentage Int @default(0)
+  taxPercentage Int
+
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id])
+
+  orgId        String
+  organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  dueDate      DateTime
+  issueDate    DateTime
+  items        InvoiceItems[]
+  transactions Transaction[]
+
+  @@map("invoices")
 }
 
-enum TransactionType {
-  PAYMENT_BY_CLIENT
-  AGENCY_PAID_MEMBERS
+model InvoiceItems {
+  id String @id @default(cuid())
+
+  invoiceId String
+  invoice Invoice @relation(fields: [invoiceId], references: [id])
+  description String
+  quantity Int
+  unitPrice Int
+  amount Int
+
+  @@map("invoice_items")
+}
+
+model Customer {
+  id    String @id @default(cuid())
+  name  String
+  email String
+
+  orgId        String
+  organization Organization @relation(fields: [orgId], references: [id])
+
+  address String?
+  city    String?
+  country String?
+
+  createdAt DateTime  @default(now())
+  invoices  Invoice[]
+
+  @@map("customer")
 }
 
 enum UserType {
-  AGENCY_OWNER
-  MEMBER
+  ORG_OWNER
 }
 
-enum PayoutStatus {
-  PENDING
-  SUCCESS
+enum InvoiceStatus {
+  PAID
+  UNPAID
+  OVERDUE
+  SCHEDULED
+  VOIDED
+  PARTIALLY_PAID
 }
 
-enum InviteStatus {
+enum TransactionStatus {
+  SETTLED
+  FAILED
   PENDING
-  ACCEPTED
-  DECLINED
-  REVOKED
 }

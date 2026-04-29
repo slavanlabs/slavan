@@ -12,7 +12,7 @@ import {
   Link,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 export const columns: ColumnDef<Invoice>[] = [

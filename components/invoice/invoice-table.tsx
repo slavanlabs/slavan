@@ -28,6 +28,7 @@ export function InvoiceDataTable<TData, TValue>({
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
+
   return (
     <div className={cn("overflow-hidden rounded-sm")}>
       <Table>
