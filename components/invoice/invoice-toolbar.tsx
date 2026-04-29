@@ -64,9 +64,7 @@ const DATE_RANGE = [
 ];
 const STATUS = ["Paid", "Unpaid", "Paritally Paid", "Overdue", "Voided"];
 
-
 export const InvoiceToolbar = () => {
-
   const [dateType, setdateType] = useState<"between" | "is" | "is-on-or-after" | "is-on-or-before">("between");
 
   return (
