@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Calendar1, ChevronDown, Circle, Search } from "lucide-react";
 import { IoPerson } from "react-icons/io5";
@@ -17,6 +17,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Calendar } from "@/components/ui/calendar";
+import { ColumnFiltersState, Table } from "@tanstack/react-table";
 
 const DATE_PICKING_OPTIONS = [
   {
@@ -62,10 +64,34 @@ const DATE_RANGE = [
     name: "This year",
   },
 ];
-const STATUS = ["Paid", "Unpaid", "Paritally Paid", "Overdue", "Voided"];
+const STATUS = ["Paid", "Unpaid", "Paritally Paid", "Overdue", "Voided"].map(
+  (x) => x.toLowerCase(),
+);
 
-export const InvoiceToolbar = () => {
-  const [dateType, setdateType] = useState<"between" | "is" | "is-on-or-after" | "is-on-or-before">("between");
+export const InvoiceToolbar = ({
+  table,
+  onColumnFiltersChange,
+}: {
+  table: Table<any>;
+  onColumnFiltersChange: Dispatch<SetStateAction<ColumnFiltersState>>;
+}) => {
+  const [date, setDate] = useState<Date>();
+  const [status, setStatus] = useState(STATUS);
+  const [statusFilter, setStatusFilter] = useState("");
+  const [checked, setChecked] = useState<string[]>([]);
+  const [customerFilter, setCustomerFilter] = useState("");
+  const [dateType, setdateType] = useState<
+    "between" | "is" | "is-on-or-after" | "is-on-or-before"
+  >("between");
+
+  useEffect(() => {
+    if (!statusFilter) {
+      setStatus(STATUS);
+      return;
+    }
+    const updated = STATUS.filter((x) => x.includes(statusFilter));
+    setStatus(updated);
+  }, [statusFilter]);
 
   return (
     <div className={cn("flex items-center gap-x-2 px-4 py-3")}>
@@ -80,7 +106,14 @@ export const InvoiceToolbar = () => {
         </DropdownMenuTrigger>
 
         <DropdownMenuContent className="p-0 w-full mt-1">
-          <Input placeholder="Search" className="w-80" autoFocus />
+          <Input
+            placeholder="Search"
+            className="w-80"
+            autoFocus
+            onChange={(e) =>
+              table.getColumn("customer")?.setFilterValue(e.target.value)
+            }
+          />
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -125,7 +158,7 @@ export const InvoiceToolbar = () => {
                 <Button
                   variant={"ghost"}
                   size={"lg"}
-                  className="rounded-none outline-none focus:ring-0!"
+                  className="rounded-none outline-none focus:ring-0! focus-visible:ring-0"
                 >
                   <span>Due Date</span>
                   <ChevronDown />
@@ -171,28 +204,43 @@ export const InvoiceToolbar = () => {
           <div className={cn("flex items-center gap-x-2 p-2")}>
             <div
               className={cn(
-                "flex items-center gap-x-1 border px-1 py-1 rounded-sm flex-1",
+                "flex items-center gap-x-1 border px-2 py-1 rounded-sm flex-1",
               )}
             >
               <Label>From</Label>
               <Input
                 type="date"
-                className={cn("bg-transparent! border-none")}
+                className={cn(
+                  "bg-transparent! border-none",
+                  "[&::-webkit-calendar-picker-indicator]:hidden focus:ring-0! outline-none!",
+                )}
               />
             </div>
 
             <div
               className={cn(
-                "flex items-center gap-x-1 border px-1 py-1 rounded-sm flex-1",
+                "flex items-center gap-x-1 border px-2 py-1 rounded-sm flex-1",
               )}
             >
               <Label>To</Label>
               <Input
                 type="date"
-                className={cn("bg-transparent! border-none")}
+                className={cn(
+                  "bg-transparent! border-none",
+                  "[&::-webkit-calendar-picker-indicator]:hidden focus:ring-0! outline-none!",
+                )}
+                style={{ WebkitAppearance: "none" }}
               />
             </div>
           </div>
+
+          <Calendar
+            mode="single"
+            selected={date}
+            onSelect={setDate}
+            defaultMonth={date}
+            className="w-full bg-neutral-900"
+          />
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -213,6 +261,9 @@ export const InvoiceToolbar = () => {
               <Input
                 autoFocus
                 placeholder="Search"
+                onChange={(e) => {
+                  setStatusFilter(e.target.value);
+                }}
                 className={cn(
                   "w-72 bg-transparent! border-none outline-none! focus:ring-0! px-2! ",
                 )}
@@ -220,21 +271,48 @@ export const InvoiceToolbar = () => {
             </div>
 
             <Separator />
-            <div className="p-2 space-y-3">
-              {STATUS.map((s) => (
+            <div className="p-2 space-y-3 w-full">
+              {!status.length && (
+                <span className="text-xs flex items-center justify-center">
+                  No results found.
+                </span>
+              )}
+              {status.map((s) => (
                 <Field key={s} orientation={"horizontal"}>
-                  <Checkbox />
-                  <FieldLabel>{s}</FieldLabel>
+                  <Checkbox
+                    id={s}
+                    checked={checked.includes(s)}
+                    onCheckedChange={() => {
+                      setChecked((p) =>
+                        p.includes(s) ? p.filter((x) => x !== s) : [...p, s],
+                      );
+                    }}
+                  />
+                  <FieldLabel className="capitalize">{s}</FieldLabel>
                 </Field>
               ))}
             </div>
 
             <Separator />
             <div className="flex items-center gap-2 p-2">
-              <Button className="flex-1" variant={"outline"}>
+              <Button
+                className="flex-1"
+                variant={"outline"}
+                onClick={() => {
+                  table.getColumn("status")?.setFilterValue("");
+                  setChecked([]);
+                }}
+              >
                 Reset
               </Button>
-              <Button className="flex-1">Apply</Button>
+              <Button
+                className="flex-1"
+                onClick={() => {
+                  table.getColumn("status")?.setFilterValue(checked);
+                }}
+              >
+                Apply
+              </Button>
             </div>
           </div>
         </DropdownMenuContent>
@@ -258,6 +336,7 @@ export const InvoiceToolbar = () => {
               <Input
                 autoFocus
                 placeholder="Search"
+                onChange={(e) => setCustomerFilter(e.target.value)}
                 className={cn(
                   "w-72 bg-transparent! border-none outline-none! focus:ring-0!",
                 )}
@@ -267,10 +346,23 @@ export const InvoiceToolbar = () => {
             <Separator />
 
             <div className="flex items-center gap-2 p-2">
-              <Button className="flex-1" variant={"outline"}>
+              <Button
+                className="flex-1"
+                variant={"outline"}
+                onClick={() => {
+                  table.getColumn("customer")?.setFilterValue("");
+                }}
+              >
                 Reset
               </Button>
-              <Button className="flex-1">Apply</Button>
+              <Button
+                className="flex-1"
+                onClick={() => {
+                  table.getColumn("customer")?.setFilterValue(customerFilter);
+                }}
+              >
+                Apply
+              </Button>
             </div>
           </div>
         </DropdownMenuContent>
