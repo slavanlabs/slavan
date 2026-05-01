@@ -14,10 +14,7 @@ export const Invoice = () => {
       <InvoiceTopbar />
       <Separator />
 
-      {/* Invoice tool-bar */}
-      <InvoiceToolbar />
-      <Separator />
-
+      {/* Invoice Table */}
       <InvoiceDataTable data={invoices} columns={columns} />
     </div>
   );

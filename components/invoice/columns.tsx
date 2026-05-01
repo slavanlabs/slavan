@@ -19,10 +19,12 @@ export const columns: ColumnDef<Invoice>[] = [
   {
     accessorKey: "customer",
     header: "Customer",
+    filterFn: "includesString",
   },
   {
     accessorKey: "status",
     header: "Status",
+    filterFn: "arrIncludes",
     cell: ({ row }) => {
       const status = row.getValue("status");
 
@@ -87,6 +89,7 @@ export const columns: ColumnDef<Invoice>[] = [
   {
     accessorKey: "amount",
     header: "Amount",
+    enableColumnFilter: false,
     cell: ({ row }) => {
       const amount = parseFloat(row.getValue("amount"));
       const formatted = new Intl.NumberFormat("en-US", {
